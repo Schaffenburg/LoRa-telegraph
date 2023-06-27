@@ -26,7 +26,6 @@ Ideas:
 #define NUMPIX 2
 
 #define NUM_FLASH_ERR 6
-#define FLASH_TIME 100
 
 Adafruit_NeoPixel pixels(NUMPIX, NEOPIN, NEO_GRB | NEO_KHZ800);
 
@@ -64,24 +63,15 @@ boolean readingword = false;
 int strbuffinx = 0;
 String strbuff = "";
 
-// neopixel flash engine™
-uint32_t flashcolor;
-uint8_t flashstate; // 0 = ledoff ; 1 = ledon
-uint8_t flashes; // 0 = done
-int flashnextchange;
-
 void loop() {  
   // put your main code here, to run repeatedly:
   int newstate = digitalRead(PIN_IN);
   int now = millis();
 
-  /*doFlashes(now);
- 
   // debouce
   if(now - lastchange < MIN_TIME) {
     return;
   }
-  */
 
   int diff = now-lastchange;
 
@@ -105,29 +95,25 @@ void loop() {
       printWord(wordword, readinx);
       Serial.printf(" len(%d) -> %c;\n", readinx, ch);
 
-      // send if 01010 (=\n)
-      if(ch == '\n') {
+      // send if 01010 (=\r)
+      if(ch == '\r') {
         Serial.printf("sending: %s\n", strbuff);
         sendStr(strbuff);
-        flashPixels(0xFFFF00, 2);
         
         strbuff = "";
         strbuffinx = 0; 
+
+        flashPixels(0xFFFF00, 2);
       } else {
         // add to strbuff
+        strbuff.concat(ch);
 
         switch(ch) {
           case '?':
             flashPixels(0xFF0000, NUM_FLASH_ERR);
             break;
 
-          case 0x18: // reset buffer
-            flashPixels(0xFFFF00, NUM_FLASH_ERR);
-            strbuff = "";
-            break;
-
           default:
-            strbuff.concat(ch);
             flashPixels(randomColor(), 1);
         }
       }
@@ -223,9 +209,6 @@ char morse2char(uint8_t d, uint8_t len) {
     // "specials"
     case (5 << 8 | 0b01000):; return '\n'; break;
 
-    // reset buffer
-    case (8 << 8 | 0b00000000):; return 0x18; break; //This text has been canceled
-
     default:; return '?';
   }
 }
@@ -263,18 +246,4 @@ void fillPixel(uint32_t c) {
   }
 
   pixels.show();
-}
-
-void doFlashes(int now) {
-  if(flashes > 0 && now > flashnextchange) {
-    flashstate = !flashstate;
-
-    flashnextchange = now + FLASH_TIME;
-
-    if(flashstate) {
-      flashes--;
-    }
-
-    fillPixel(flashstate ? flashcolor : 0x000000);
-  }
 }
