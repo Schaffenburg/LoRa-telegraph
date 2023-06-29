@@ -1,10 +1,15 @@
 /*
-Ideas:
- - I2C OLED fuer preview
- - mehr sonderzeichen (auch backspace)
- - mehr protos (vlt auch BL tastatur)
- - MEHR leds, da besser
- - USB breakout zeug
+   WICHTIG
+   OLED nicht AKTIVEREN, beeper haengt an pin 4, welcher auch an den OLED geht
+
+  Ideas:
+  - I2C OLED fuer preview
+  - mehr sonderzeichen (auch backspace)
+  - mehr protos (vlt auch BL tastatur)
+  - MEHR leds, da besser
+  - beep beep
+
+  :) - USB breakout zeug
 */
 
 #include "heltec.h"
@@ -27,6 +32,18 @@ Ideas:
 
 #define NUM_FLASH_ERR 6
 
+// clearscreen
+#define CLR (char)13
+// backspace
+#define BCK (char)0x7F
+
+#define MODE_CHAR
+#define MODE_STRING
+
+// beeper
+#define PIN_BEEP 4
+#define BEEP_TONE (note_t)1000
+
 Adafruit_NeoPixel pixels(NUMPIX, NEOPIN, NEO_GRB | NEO_KHZ800);
 
 void setup() {
@@ -42,73 +59,84 @@ void setup() {
     true /*Serial Enable*/,
     true /*PABOOST Enable*/,
     LoRaBAND /*long BAND*/);
-  LoRa.setTxPower(14,RF_PACONFIG_PASELECT_PABOOST);
-  
+  LoRa.setTxPower(14, RF_PACONFIG_PASELECT_PABOOST);
+
+  // leds
   pixels.begin();
+
+  // beeper
+  pinMode(PIN_BEEP, OUTPUT);
+  ledcAttachPin(PIN_BEEP, 0);
+  uint32_t freq = ledcSetup(0, 1000, 2);
 
   delay(1000);
   Serial.print("hi!\n");
+  Serial.printf("BEEP_TONE is %d; freq is %d\n", BEEP_TONE, freq);
   flashPixels(0x00FF00, 3);
 }
 
 int state = HIGH; // prevent T on startup
-int lastchange;
+int lastchange = 0;
 
-int lasttime;
+int lasttime = 0;
 
 uint8_t wordword = 0;
 uint8_t readinx = 0;
 boolean readingword = false;
 
-int strbuffinx = 0;
 String strbuff = "";
 
-void loop() {  
+void loop() {
   // put your main code here, to run repeatedly:
   int newstate = digitalRead(PIN_IN);
   int now = millis();
+  int diff = now - lastchange;
 
   // debouce
-  if(now - lastchange < MIN_TIME) {
+  if (diff < MIN_TIME) {
     return;
   }
 
-  int diff = now-lastchange;
+  if (newstate != state) {
+    if (newstate) {
+      ledcDetachPin(PIN_BEEP);
+    } else {
+      ledcAttachPin(PIN_BEEP, 0);
+      ledcWrite(0, 2);
+    }
 
-  if(newstate != state) {
-    if(newstate == 1) {
+
+    if (newstate == 1) {
       state = resolveState(diff);
 
-      // write word
-      readingword = true;
-      wordword |= state << readinx;
-      readinx++;
+      pushWord(state);
     }
 
     state = newstate;
     lastchange = now;
   } else {
-    if(diff > MIN_TIMEOUT && readingword) {
+    // timeout -> send
+    if (diff > MIN_TIMEOUT && readingword) {
       char ch = morse2char(wordword, readinx);
-      
+
       Serial.print("word done: 0b");
       printWord(wordword, readinx);
       Serial.printf(" len(%d) -> %c;\n", readinx, ch);
 
+#ifdef MODE_STRING
       // send if 01010 (=\r)
-      if(ch == '\r') {
+      if (ch == '\r') {
         Serial.printf("sending: %s\n", strbuff);
         sendStr(strbuff);
-        
+
         strbuff = "";
-        strbuffinx = 0; 
 
         flashPixels(0xFFFF00, 2);
       } else {
         // add to strbuff
         strbuff.concat(ch);
 
-        switch(ch) {
+        switch (ch) {
           case '?':
             flashPixels(0xFF0000, NUM_FLASH_ERR);
             break;
@@ -117,7 +145,12 @@ void loop() {
             flashPixels(randomColor(), 1);
         }
       }
-      
+#elif defined(MODE_CHAR)
+      if (ch != '?') {
+        sendStr(ch);
+      }
+#endif
+
       // reset
       readingword = false;
       wordword = 0b0;
@@ -130,10 +163,16 @@ void loop() {
   delay(15);
 }
 
-enum state{SHORT = 0, LONG, TIMEOUT};
+void pushWord(uint8_t state) {
+  readingword = true;
+  wordword |= state << readinx;
+  readinx++;
+}
+
+enum state {SHORT = 0, LONG, TIMEOUT};
 
 void serialState(uint8_t state) {
-  switch(state) {
+  switch (state) {
     case SHORT:; Serial.print("short"); break;
     case LONG:; Serial.print("long"); break;
     case TIMEOUT:; Serial.print("timeout"); break;
@@ -146,8 +185,8 @@ uint8_t resolveState(int diff) {
 }
 
 void printWord(uint8_t w, uint8_t len) {
-  for(uint8_t i = 0 ; i < len; i++) {
-    if(w & 1 << i) {
+  for (uint8_t i = 0 ; i < len; i++) {
+    if (w & 1 << i) {
       Serial.print("1");
     } else {
       Serial.print("0");
@@ -158,11 +197,11 @@ void printWord(uint8_t w, uint8_t len) {
 // short is 0; long is 1
 char morse2char(uint8_t d, uint8_t len) {
   word w = d | (len << 8);
-  
-  switch(w) {
+
+  switch (w) {
     case (2 << 8 | 0b10):;   return 'A'; break;
     case (4 << 8 | 0b0001):; return 'B'; break;
-    case (4 << 8 | 0b00101):;return 'C'; break;
+    case (4 << 8 | 0b00101):; return 'C'; break;
     case (3 << 8 | 0b001):;  return 'D'; break;
     case (1 << 8 | 0b0):;    return 'E'; break;
     case (4 << 8 | 0b0100):; return 'F'; break;
@@ -186,7 +225,7 @@ char morse2char(uint8_t d, uint8_t len) {
     case (4 << 8 | 0b1001):; return 'X'; break;
     case (4 << 8 | 0b1101):; return 'Y'; break;
     case (4 << 8 | 0b0011):; return 'Z'; break;
-    
+
     case (5 << 8 | 0b11110):; return '1'; break;
     case (5 << 8 | 0b11100):; return '2'; break;
     case (5 << 8 | 0b11000):; return '3'; break;
@@ -202,12 +241,15 @@ char morse2char(uint8_t d, uint8_t len) {
     //case (4 << 8 | 0b0101):;  return 'Ä'; break;
     //case (4 << 8 | 0b1011):;  return 'Ö'; break;
     //case (4 << 8 | 0b1100):;  return 'Ü'; break;
-  
+
     // done
     case (5 << 8 | 0b01010):; return '\r'; break;
 
     // "specials"
     case (5 << 8 | 0b01000):; return '\n'; break;
+
+    case (8 << 8 | 0b00000000):; return BCK; break;
+    case (8 << 8 | 0b10000000):; return CLR; break;
 
     default:; return '?';
   }
@@ -232,16 +274,16 @@ uint32_t randomColor() {
 }
 
 void flashPixels(uint32_t c, uint8_t times) {
-  for(uint8_t i = 0; i < times; i++) {
+  for (uint8_t i = 0; i < times; i++) {
     fillPixel(c);
     delay(100);
     fillPixel(0x0);
-    delay(100);  
+    delay(100);
   }
 }
 
 void fillPixel(uint32_t c) {
-  for(uint8_t i = 0; i < NUMPIX; i++) {
+  for (uint8_t i = 0; i < NUMPIX; i++) {
     pixels.setPixelColor(i, c);
   }
 
