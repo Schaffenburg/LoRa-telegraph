@@ -18,19 +18,12 @@ void setup() {
 
   delay(1000);
   Serial.print("hi!");
-  SoftSerial.print("hi2!");
-  
+  SoftSerial.print("ready!");
 }
 
-#define CLR (char)12
-
 void loop() {
-  // try to parse packet
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
-    // received a packet
-    //Serial.print("Received packet '");
-
     String buf;
 
     // read packet
@@ -42,10 +35,7 @@ void loop() {
       Heltec.display->display();
     }
 
-
-    Serial.printf("-> %s\n", buf);
-
+    Serial.printf("^-. rec '%s'\n", buf);
     SoftSerial.print(buf); // write string
-}
-
+  }
 }
