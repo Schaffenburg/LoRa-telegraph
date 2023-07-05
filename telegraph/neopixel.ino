@@ -7,7 +7,7 @@ uint32_t ledColor = 0;
 void handleNeopixel(int now) {
   if (ledFlashes > 0 && now > ledNextFlash) {
     if (ledState) {
-      fillPixel(0);
+      fillStandby();
       ledFlashes--;
     } else {
       fillPixel(ledColor);
@@ -56,9 +56,13 @@ void flashPixels(uint32_t c, uint8_t times) {
   for (uint8_t i = 0; i < times; i++) {
     fillPixel(c);
     delay(100);
-    fillPixel(0x0);
+    fillStandby();
     delay(100);
   }
+}
+
+void fillStandby() {
+  fillPixel(standbyColors[activeMode]);
 }
 
 void fillPixel(uint32_t c) {

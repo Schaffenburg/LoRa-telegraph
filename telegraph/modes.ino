@@ -2,12 +2,14 @@ uint8_t activeMode = DEFAULT_MODE;
 
 #define MODE_OFF 0
 #define MODE_DIRECT 1
-#define MODE_STRING 2
+#define MODE_BLE 2
+#define MODE_STRING 3
 
 const uint32_t standbyColors[] {
   0x000000, // MODE_OFF
   0xFFFF00, // MODE_DIRECT
-  0x0000D0, // MODE_STRING
+  0x0000D0, // MODE_BLE
+  0x00D010, // MODE_STRING
 };
 
 void handleWord(char ch) {
@@ -21,14 +23,19 @@ void handleWord(char ch) {
       ledcWrite(0, 2);
     }
 
+    fillStandby();
+
     Serial.printf("new mode: %d\n", activeMode);
     return;
   }
 
   switch (activeMode) {
     case MODE_DIRECT:
-      if (ch != NAK)
-      sendStr(String(ch));
+      if (ch != NAK) sendStr(String(ch));
+      break;
+
+    case MODE_BLE:
+      blePress(ch);
       break;
 
     case MODE_STRING:

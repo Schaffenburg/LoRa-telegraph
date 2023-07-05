@@ -1,4 +1,4 @@
-enum state {SHORT = 0, LONG, TIMEOUT};
+  enum state {SHORT = 0, LONG, TIMEOUT};
 
 void serialState(uint8_t state) {
   switch (state) {
@@ -20,7 +20,7 @@ char morse2char(uint8_t d, uint8_t len) {
   switch (w) {
     case (2 << 8 | 0b10):;   return 'A'; break;
     case (4 << 8 | 0b0001):; return 'B'; break;
-    case (4 << 8 | 0b00101):; return 'C'; break;
+    case (4 << 8 | 0b00101):;return 'C'; break;
     case (3 << 8 | 0b001):;  return 'D'; break;
     case (1 << 8 | 0b0):;    return 'E'; break;
     case (4 << 8 | 0b0100):; return 'F'; break;

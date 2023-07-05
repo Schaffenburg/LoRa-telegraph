@@ -24,7 +24,7 @@
 #define MIN_TIME 30
 
 #define MIN_LONG 190
-#define MIN_TIMEOUT 500
+#define MIN_TIMEOUT 350
 
 // - * NEO * -
 #define NEOPIN 12
@@ -69,6 +69,8 @@ void setup() {
   // * n e o *
   pixels.begin();
 
+  setupBLE();
+
   // beep boop
   pinMode(PIN_BEEP, OUTPUT);
   uint32_t freq = setupTone();
@@ -98,8 +100,12 @@ String strbuff = "";
 void loop() {
   // put your main code here, to run repeatedly:
   int now = millis();
-  
+
+  setTone(digitalRead(PIN_IN));
+
   handleTelegraph(now);
+
+  wlanConnected(now);
 
   OTAhandleClient();
   handleNeopixel(now);
@@ -142,9 +148,7 @@ void handleTelegraph(int now) {
     return;
   }
 
-if (newstate != state) {
-    setTone(newstate);
-
+  if (newstate != state) {
     if (newstate == 1) {
       state = resolveState(diff);
 
