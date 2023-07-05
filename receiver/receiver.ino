@@ -16,12 +16,20 @@ void setup() {
   Serial.begin(9600);
   SoftSerial.begin(9600);
 
+  setupWebServer();
+
   delay(1000);
   Serial.print("hi!");
   SoftSerial.print("ready!");
+
+  Heltec.display->clear();
+  Heltec.display->drawString(0 , 0 , "LoRaTelegraph receiver ready");
+  Heltec.display->display();
 }
 
 void loop() {
+  handleWebClient();
+  
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
     String buf;
