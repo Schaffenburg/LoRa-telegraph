@@ -1,5 +1,6 @@
-#include "heltec.h"
 #include <SoftwareSerial.h>
+#include "Server.h"
+#include "heltec.h"
 
 #define BAND    868E6  //you can set band here directly,e.g. 868E6,915E6
 
@@ -29,7 +30,7 @@ void setup() {
 
 void loop() {
   handleWebClient();
-  
+
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
     String buf;
