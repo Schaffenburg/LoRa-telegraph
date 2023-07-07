@@ -1,4 +1,5 @@
 #include <BleKeyboard.h>
+#include "bluetooth.h"
 // get from https://github.com/T-vK/ESP32-BLE-Keyboard
 
 // name, manufacturer, init. batter level

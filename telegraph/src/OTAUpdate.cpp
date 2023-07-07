@@ -12,6 +12,7 @@
 #include <Update.h>
 
 #include "credentials.h"
+#include "OTAUpdate.h"
 
 /*
    Login page

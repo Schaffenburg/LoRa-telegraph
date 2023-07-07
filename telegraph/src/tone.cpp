@@ -1,6 +1,7 @@
 #include <Arduino.h>
-#include "credentials.h"
+
 #include "config.h"
+#include "tone.h"
 
 void setTone(uint8_t state) {
   if (state) {

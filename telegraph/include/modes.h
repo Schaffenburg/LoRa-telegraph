@@ -11,14 +11,9 @@
 #define MODE_BLE 2
 #define MODE_STRING 3
 
-uint8_t activeMode = DEFAULT_MODE;
+extern uint8_t activeMode;
 
-const uint32_t standbyColors[] {
-  0x000000, // MODE_OFF
-  0xFFFF00, // MODE_DIRECT
-  0x0000D0, // MODE_BLE
-  0x00D010, // MODE_STRING
-};
+extern const uint32_t standbyColors[];
 
 void handleWord(char);
 

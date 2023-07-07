@@ -4,7 +4,7 @@
 #ifndef MORSE_H
 #define MORSE_H
 
-int lasttime;
+extern int lasttime;
 
 char morse2char(uint8_t, uint8_t);
 uint8_t resolveState(int);

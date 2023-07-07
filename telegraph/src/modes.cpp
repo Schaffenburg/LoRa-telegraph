@@ -3,6 +3,15 @@
 #include "modes.h"
 #include "telegraph.h"
 
+uint8_t activeMode = DEFAULT_MODE;
+
+extern const uint32_t standbyColors[] {
+  0x000000, // MODE_OFF
+  0xFFFF00, // MODE_DIRECT
+  0x0000D0, // MODE_BLE
+  0x00D010, // MODE_STRING
+};
+
 void handleWord(char ch) {
   if (ch == 0x00) {
     activeMode += 1;

@@ -23,6 +23,15 @@
 #include "modes.h"
 #include "morse.h"
 
+String strbuff = "";
+
+uint8_t wordword = 0;
+uint8_t readinx = 0;
+boolean readingword = false;
+
+int state = HIGH; // prevent T on startup
+int lastchange = 0;
+
 void pushWord(uint8_t state) {
   readingword = true;
   wordword |= state << readinx;

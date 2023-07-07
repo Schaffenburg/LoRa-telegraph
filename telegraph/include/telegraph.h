@@ -4,14 +4,14 @@
 
 void handleTelegraph(int);
 
-String strbuff = "";
+extern String strbuff;
 
-uint8_t wordword = 0;
-uint8_t readinx = 0;
-boolean readingword = false;
+extern uint8_t wordword;
+extern uint8_t readinx;
+extern boolean readingword;
 
-int state = HIGH; // prevent T on startup
-int lastchange = 0;
+extern int state; 
+extern int lastchange;
 
 void sendStr(String);
 

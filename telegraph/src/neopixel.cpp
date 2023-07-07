@@ -9,6 +9,8 @@ uint8_t ledState = 0; // off
 uint8_t ledFlashes = 0;
 uint32_t ledColor = 0;
 
+Adafruit_NeoPixel pixels(NUMPIX, NEOPIN, NEO_GRB | NEO_KHZ800);
+
 void handleNeopixel(int now) {
   if (ledFlashes > 0 && now > ledNextFlash) {
     if (ledState) {

@@ -1,10 +1,11 @@
 #include <Arduino.h>
 
+#include "morse.h"
 #include "config.h"
 
-enum state {SHORT = 0, LONG, TIMEOUT};
+int lasttime = 0 ;
 
-int lasttime = 0;
+enum state {SHORT = 0, LONG, TIMEOUT};
 
 void serialState(uint8_t state) {
   switch (state) {

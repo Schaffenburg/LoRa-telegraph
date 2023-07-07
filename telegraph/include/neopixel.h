@@ -17,6 +17,6 @@ uint32_t randomColor();
 
 void handleNeopixel(int);
 
-Adafruit_NeoPixel pixels(NUMPIX, NEOPIN, NEO_GRB | NEO_KHZ800);
+extern Adafruit_NeoPixel pixels;
 
 #endif // PIXEL_H
