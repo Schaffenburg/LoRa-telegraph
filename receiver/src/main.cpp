@@ -1,5 +1,6 @@
-#include "heltec.h"
 #include <SoftwareSerial.h>
+#include "Server.h"
+#include "heltec.h"
 
 #define BAND    868E6  //you can set band here directly,e.g. 868E6,915E6
 
@@ -16,12 +17,20 @@ void setup() {
   Serial.begin(9600);
   SoftSerial.begin(9600);
 
+  setupWebServer();
+
   delay(1000);
   Serial.print("hi!");
   SoftSerial.print("ready!");
+
+  Heltec.display->clear();
+  Heltec.display->drawString(0 , 0 , "LoRaTelegraph receiver ready");
+  Heltec.display->display();
 }
 
 void loop() {
+  handleWebClient();
+
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
     String buf;
