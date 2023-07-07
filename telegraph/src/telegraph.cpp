@@ -21,6 +21,7 @@
 #include "tone.h"
 #include "neopixel.h"
 #include "modes.h"
+#include "webportal.h"
 #include "morse.h"
 
 String strbuff = "";
@@ -110,6 +111,8 @@ void setup() {
   pinMode(PIN_BEEP, OUTPUT);
   uint32_t freq = setupTone();
 
+  setupWeb();
+
   setupOTA();
 
   delay(1000);
@@ -131,7 +134,7 @@ void loop() {
 
   wlanConnected(now);
 
-  OTAhandleClient();
+  server.handleClient();
   handleNeopixel(now);
 
   lasttime = now;
@@ -145,4 +148,7 @@ void sendStr(String str) {
   LoRa.beginPacket();
   LoRa.print(str);
   LoRa.endPacket();
+
+  // add to webportal
+  addMsg(str);
 }

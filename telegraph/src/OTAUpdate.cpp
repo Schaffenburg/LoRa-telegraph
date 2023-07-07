@@ -8,9 +8,9 @@
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
-#include <ESPmDNS.h>
 #include <Update.h>
 
+#include "webportal.h"
 #include "credentials.h"
 #include "OTAUpdate.h"
 
@@ -86,51 +86,12 @@ const char* serverIndex =
   "});"
   "</script>";
 
-WebServer server(80);
-
-void OTAhandleClient() {
-  server.handleClient();
-}
-
-int nextWlan;
-bool printedWlan = false;
-
-void wlanConnected(int now) {
-  // Wait for connection
-  if (nextWlan < now && WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-
-    nextWlan = now + 500;
-  } else {
-    if (!printedWlan) {
-      printedWlan = true;
-      Serial.print("\nConnected to ");
-      Serial.println(WIFI_SSID);
-      Serial.print("IP address: ");
-      Serial.println(WiFi.localIP());
-
-      /*use mdns for host name resolution*/
-      if (!MDNS.begin(HOST))
-        Serial.println("Error setting up MDNS responder, MDNS will not be used");
-      else
-        Serial.println("mDNS responder started");
-    }
-  }
-
-
-}
-
 /*
    setup function
 */
 void setupOTA() {
-  // Connect to WiFi network
-  WiFi.begin(WIFI_SSID, WIFI_PWD);
-
-  Serial.print("Connecting to WiFi");
-
   /*return index page which is stored in serverIndex */
-  server.on("/", HTTP_GET, []() {
+  server.on("/login", HTTP_GET, []() {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", loginIndex);
   });
