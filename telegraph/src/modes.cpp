@@ -2,6 +2,7 @@
 #include "bluetooth.h"
 #include "modes.h"
 #include "telegraph.h"
+#include "sleep.h"
 
 uint8_t activeMode = DEFAULT_MODE;
 
@@ -13,20 +14,25 @@ extern const uint32_t standbyColors[] {
 };
 
 void handleWord(char ch) {
-  if (ch == 0x00) {
-    activeMode += 1;
+  switch(ch) {
+    case 0x00:
+      activeMode += 1;
 
-    if (activeMode > MODE_STRING) {
-      activeMode = MODE_OFF;
+      if (activeMode > MODE_STRING) {
+        activeMode = MODE_OFF;
 
-      ledcAttachPin(PIN_BEEP, 0);
-      ledcWrite(0, 2);
-    }
+        ledcAttachPin(PIN_BEEP, 0);
+        ledcWrite(0, 2);
+      }
 
-    fillStandby();
+      fillStandby();
 
-    Serial.printf("new mode: %d\n", activeMode);
-    return;
+      Serial.printf("new mode: %d\n", activeMode);
+      return;
+
+    case 0x0F:
+      go_to_sleep();
+      return;
   }
 
   switch (activeMode) {

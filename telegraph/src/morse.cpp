@@ -91,6 +91,9 @@ char morse2char(uint8_t d, uint8_t len) {
     // cycle modes
     case (8<<8 | 0xFF):; return 0x00; break;
 
+    // deep sleep
+    case (8<<8 | 0b10101010):; return 0x05; break;
+
     default:; return NAK;
   }
 }

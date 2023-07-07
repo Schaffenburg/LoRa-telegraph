@@ -5,6 +5,7 @@
 #include "credentials.h"
 #include "modes.h"
 #include "webportal.h"
+#include "sleep.h"
 
 WebServer server(80);
 
@@ -104,6 +105,16 @@ void setupWeb() {
 
      server.sendHeader("Connection", "close");
     server.send(200, "text/html", sendMsgIndex);
+  });
+
+  server.on("/deepsleep", HTTP_GET, []() {
+    if (server.arg("k") != OTA_PWD) {
+      server.send(400, "text/html", "invalid credentials.");
+    } else {
+      server.send(200, "text/html", "derp sleep");
+      
+      go_to_sleep(); 
+    }
   });
 
   server.on("/messages", HTTP_GET, []() {

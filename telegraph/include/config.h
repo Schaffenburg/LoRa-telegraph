@@ -5,13 +5,13 @@
 // LoRa
 #define LoRaBAND    868E6
 
-// Telegraph
+// Telegraph (only use RTC connected pins to enable deep-sleep)
 #define PIN_IN 13
 
 #define MIN_TIME 30
 
-#define MIN_LONG 190
-#define MIN_TIMEOUT 350
+#define MIN_LONG 150
+#define MIN_TIMEOUT 300
 
 // - * NEO * -
 #define NEOPIN 12

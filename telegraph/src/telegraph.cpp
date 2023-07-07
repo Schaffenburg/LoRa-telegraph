@@ -90,6 +90,7 @@ void handleTelegraph(int now) {
 void setup() {
   // telegraph
   pinMode(PIN_IN, INPUT_PULLUP);
+  esp_sleep_enable_ext0_wakeup((gpio_num_t)PIN_IN, LOW);
 
   Serial.begin(115200);
 
