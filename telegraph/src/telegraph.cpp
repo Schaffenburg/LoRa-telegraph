@@ -4,11 +4,11 @@
 
   Ideas:
   - I2C OLED fuer preview
-  - mehr sonderzeichen (auch backspace)
-  - mehr protos (vlt auch BL tastatur)
   - MEHR leds, da besser
-  - beep beep
 
+  :) - mehr sonderzeichen (auch backspace)
+  :) - mehr protos (vlt auch BL tastatur)  
+  :) - beep beep
   :) - USB breakout zeug
 */
 
