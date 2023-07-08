@@ -30,7 +30,9 @@ void handleWord(char ch)
 
     fillStandby();
 
+    #ifdef DEBUG
     Serial.printf("new mode: %d\n", activeMode);
+    #endif
     return;
 
   case 0x05:
