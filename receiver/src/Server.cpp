@@ -1,6 +1,7 @@
 #include "credentials.h"
 #include "Server.h"
 #include "pages.h"
+#include "StoreCSV.h"
 #include <WebServer.h>
 
 WebServer server(80);
@@ -70,6 +71,11 @@ void handleUpload() {
   }
 }
 
+void CSVUploadPage() {
+  server.sendHeader("Connection", "close");
+  server.send(200, "text/html", csvUploadPage);
+}
+
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length){
   if(type == WStype_TEXT){
     String message = String((char*) payload);
@@ -105,6 +111,11 @@ void setupWebServer() {
   server.on("/displayString", HTTP_POST, handleDisplayString);
   server.on("/OTA", HTTP_GET, handleOTA);
   server.on("/serverIndex", HTTP_GET, handleServerIndex);
+  server.on("/uploadCSV", HTTP_GET, CSVUploadPage);
+  server.on("/uploadCSV", HTTP_POST, []() {
+    server.send(200, "text/plain", "CSV Uploaded Successfully");
+  }, handleCSVUpload);
+
   server.on("/update", HTTP_POST, []() {
     handleUpdate();
   }, handleUpload);

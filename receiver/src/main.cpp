@@ -1,6 +1,7 @@
 #include <SoftwareSerial.h>
 #include "Server.h"
 #include "TelegraphTime.h"
+#include "StoreCSV.h"
 #include "heltec.h"
 
 #define BAND    868E6  //you can set band here directly,e.g. 868E6,915E6
@@ -22,6 +23,8 @@ void setup() {
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
   setupWebServer();
+
+  readCSVfromFS();
 
   delay(1000);
   Serial.print("hi!");

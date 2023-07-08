@@ -1,3 +1,7 @@
+// Pages.h
+#ifndef PAGES_H
+#define PAGES_H
+
 /*
  * Form to display strings page
  */
@@ -90,3 +94,35 @@ const char* serverIndex =
  "});"
  "});"
  "</script>";
+
+/*
+ * CSV Upload page
+ */
+const char* csvUploadPage =
+"<form method='POST' action='/uploadCSV' enctype='multipart/form-data' id='upload_csv_form'>"
+   "<label for='csvFile'>Upload CSV File:</label>"
+   "<input type='file' name='csvFile' accept='.csv'><br>"
+   "<input type='submit' value='Upload'>"
+"</form>"
+"<script>"
+  "$('#upload_csv_form').submit(function(e){"
+  "e.preventDefault();"
+  "var form = $('#upload_csv_form')[0];"
+  "var data = new FormData(form);"
+  " $.ajax({"
+  "url: '/uploadCSV',"
+  "type: 'POST',"
+  "data: data,"
+  "contentType: false,"
+  "processData:false,"
+  "success:function(d, s) {"
+  "console.log('File uploaded successfully!')"
+ "},"
+ "error: function (a, b, c) {"
+ "console.log('Error during file upload.');"
+ "}"
+ "});"
+ "});"
+ "</script>";
+
+#endif
