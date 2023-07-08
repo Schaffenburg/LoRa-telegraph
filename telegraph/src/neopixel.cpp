@@ -1,4 +1,5 @@
 #include <Adafruit_NeoPixel.h>
+#include <Arduino.h>
 
 #include "modes.h"
 #include "neopixel.h"
@@ -13,7 +14,7 @@ Adafruit_NeoPixel pixels(NUMPIX, NEOPIN, NEO_GRB | NEO_KHZ800);
 
 void handleNeopixel(int now)
 {
-  if (ledFlashes > 0 && now > ledNextFlash)
+  if ((ledFlashes > 0) && (now > ledNextFlash))
   {
     if (ledState)
     {
@@ -26,9 +27,12 @@ void handleNeopixel(int now)
     }
 
     ledNextFlash = millis() + 100;
-  }
 
-  ledState = !ledState;
+    ledState = !ledState;
+
+    Serial.printf("Still flashing %d times in %x next at %d\n",
+                  ledFlashes, ledColor, ledNextFlash);
+  }
 }
 
 void flashPixelFeedback(char ch)

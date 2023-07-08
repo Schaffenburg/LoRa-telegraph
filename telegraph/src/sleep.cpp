@@ -7,6 +7,8 @@
 
 void go_to_sleep()
 {
+    Serial.println("Starting to go to sleep");
+
     WiFi.disconnect();
     bleKeyboard.end();
 
@@ -23,5 +25,7 @@ void go_to_sleep()
 
     // telegraph go bye bye:
     esp_sleep_enable_ext0_wakeup((gpio_num_t)PIN_IN, LOW);
+
+    Serial.println("bye bye- sayonara!");
     esp_deep_sleep_start();
 }
