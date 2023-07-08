@@ -34,4 +34,7 @@
 // modes
 #define DEFAULT_MODE 0
 
+// Debugging messages
+// #define DEBUG
+
 #endif // CONFIG_H

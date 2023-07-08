@@ -157,7 +157,9 @@ void loop()
 
 void sendStr(String str)
 {
+  #ifdef DEBUG
   Serial.printf("sending '%s' .-^\n", str);
+  #endif
 
   LoRa.beginPacket();
   LoRa.print(str);

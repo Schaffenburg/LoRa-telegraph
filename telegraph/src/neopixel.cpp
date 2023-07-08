@@ -30,8 +30,10 @@ void handleNeopixel(int now)
 
     ledState = !ledState;
 
+#ifdef DEBUG
     Serial.printf("Still flashing %d times in %x next at %d\n",
                   ledFlashes, ledColor, ledNextFlash);
+#endif
   }
 }
 
@@ -64,7 +66,9 @@ uint32_t randomColor()
 
 void flashPixels(uint32_t c, uint8_t times)
 {
+  #ifdef DEBUG
   Serial.printf("Flashing %d times with color %x\n", times, c);
+  #endif
 
   ledColor = c;
   ledState = 0;
