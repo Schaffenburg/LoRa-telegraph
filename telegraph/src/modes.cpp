@@ -30,7 +30,7 @@ void handleWord(char ch) {
       Serial.printf("new mode: %d\n", activeMode);
       return;
 
-    case 0x0F:
+    case 0x05:
       go_to_sleep();
       return;
   }

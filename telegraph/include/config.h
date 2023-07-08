@@ -11,7 +11,7 @@
 #define MIN_TIME 30
 
 #define MIN_LONG 150
-#define MIN_TIMEOUT 300
+#define MIN_TIMEOUT 400
 
 // - * NEO * -
 #define NEOPIN 12

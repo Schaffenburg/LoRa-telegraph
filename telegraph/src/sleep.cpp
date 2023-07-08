@@ -12,12 +12,13 @@ void go_to_sleep() {
 
     // blink blink
     fillPixel(0x0);
-    fillPixel(0xFF0000);
-    delay(200);
-    fillPixel(0x0);
-    fillPixel(0xFF0000);
-    delay(200);
-    fillPixel(0x0);
+    for(uint8_t i = 0 ; i < 254 ; i++) {
+        fillPixel((254-(uint32_t)i)<<16);
+        delay(10);
+    }
+
+    fillPixel(0);
+    delay(5);
 
     // telegraph go bye bye:
     esp_sleep_enable_ext0_wakeup((gpio_num_t)PIN_IN, LOW);

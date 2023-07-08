@@ -59,13 +59,6 @@ void flashPixels(uint32_t c, uint8_t times) {
   ledNextFlash = 0; // ASAP
 
   return;
-
-  for (uint8_t i = 0; i < times; i++) {
-    fillPixel(c);
-    delay(100);
-    fillStandby();
-    delay(100);
-  }
 }
 
 void fillStandby() {

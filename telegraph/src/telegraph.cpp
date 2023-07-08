@@ -139,8 +139,6 @@ void loop() {
   handleNeopixel(now);
 
   lasttime = now;
-
-  delay(15);
 }
 
 void sendStr(String str) {
