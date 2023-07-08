@@ -1,5 +1,6 @@
 #include <SoftwareSerial.h>
 #include "Server.h"
+#include "TelegraphTime.h"
 #include "heltec.h"
 
 #define BAND    868E6  //you can set band here directly,e.g. 868E6,915E6
@@ -16,6 +17,8 @@ void setup() {
 
   Serial.begin(9600);
   SoftSerial.begin(9600);
+
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
   setupWebServer();
 
@@ -45,6 +48,12 @@ void loop() {
     }
 
     Serial.printf("^-. rec '%s'\n", buf);
+
+
     SoftSerial.print(buf); // write string
   }
+  printLocalTime();
+  delay(1000);
 }
+
+
