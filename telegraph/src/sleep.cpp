@@ -5,15 +5,16 @@
 #include "config.h"
 #include "neopixel.h"
 
-
-void go_to_sleep() {
+void go_to_sleep()
+{
     WiFi.disconnect();
     bleKeyboard.end();
 
     // blink blink
     fillPixel(0x0);
-    for(uint8_t i = 0 ; i < 254 ; i++) {
-        fillPixel((254-(uint32_t)i)<<16);
+    for (uint8_t i = 0; i < 254; i++)
+    {
+        fillPixel((254 - (uint32_t)i) << 16);
         delay(10);
     }
 

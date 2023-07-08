@@ -3,7 +3,7 @@
 #define CONFIG_H
 
 // LoRa
-#define LoRaBAND    868E6
+#define LoRaBAND 868E6
 
 // Telegraph (only use RTC connected pins to enable deep-sleep)
 #define PIN_IN 13
@@ -26,7 +26,7 @@
 #define BCK (char)0x7F
 #define ACK (char)0x06
 #define NAK (char)0x15 // =25 // err value
- 
+
 // beep beep
 #define PIN_BEEP 4
 #define BEEP_TONE (note_t)1000

@@ -10,7 +10,7 @@ extern uint8_t wordword;
 extern uint8_t readinx;
 extern boolean readingword;
 
-extern int state; 
+extern int state;
 extern int lastchange;
 
 void sendStr(String);

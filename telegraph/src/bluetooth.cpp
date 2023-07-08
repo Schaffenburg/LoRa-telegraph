@@ -5,12 +5,14 @@
 // name, manufacturer, init. batter level
 BleKeyboard bleKeyboard("LoRa-Telegraph", "schaffenburg", 69);
 
-void setupBLE() {
+void setupBLE()
+{
   bleKeyboard.end();
   bleKeyboard.begin();
 }
 
-void blePress(char key) {
+void blePress(char key)
+{
   bleKeyboard.press(key);
 
   bleKeyboard.releaseAll();

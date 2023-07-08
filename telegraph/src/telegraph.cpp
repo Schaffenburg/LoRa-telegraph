@@ -33,33 +33,43 @@ boolean readingword = false;
 int state = HIGH; // prevent T on startup
 int lastchange = 0;
 
-void pushWord(uint8_t state) {
+void pushWord(uint8_t state)
+{
   readingword = true;
   wordword |= state << readinx;
   readinx++;
 }
 
-void printWord(uint8_t w, uint8_t len) {
-  for (uint8_t i = 0 ; i < len; i++) {
-    if (w & 1 << i) {
+void printWord(uint8_t w, uint8_t len)
+{
+  for (uint8_t i = 0; i < len; i++)
+  {
+    if (w & 1 << i)
+    {
       Serial.print("1");
-    } else {
+    }
+    else
+    {
       Serial.print("0");
     }
   }
 }
 
-void handleTelegraph(int now) {
+void handleTelegraph(int now)
+{
   int newstate = digitalRead(PIN_IN);
   int diff = now - lastchange;
 
   // debouce
-  if (diff < MIN_TIME) {
+  if (diff < MIN_TIME)
+  {
     return;
   }
 
-  if (newstate != state) {
-    if (newstate == 1) {
+  if (newstate != state)
+  {
+    if (newstate == 1)
+    {
       state = resolveState(diff);
 
       pushWord(state);
@@ -67,9 +77,12 @@ void handleTelegraph(int now) {
 
     state = newstate;
     lastchange = now;
-  } else {
+  }
+  else
+  {
     // timeout waiting for more of word
-    if (diff > MIN_TIMEOUT && readingword) {
+    if (diff > MIN_TIMEOUT && readingword)
+    {
       char ch = morse2char(wordword, readinx);
 
       Serial.print("word done: 0b");
@@ -86,8 +99,8 @@ void handleTelegraph(int now) {
   }
 }
 
-
-void setup() {
+void setup()
+{
   // telegraph
   pinMode(PIN_IN, INPUT_PULLUP);
   esp_sleep_enable_ext0_wakeup((gpio_num_t)PIN_IN, LOW);
@@ -96,11 +109,11 @@ void setup() {
 
   // LoRa and stuff
   Heltec.begin(
-    false /*DisplayEnable Enable*/,
-    true /*Heltec.LoRa Disable*/,
-    true /*Serial Enable*/,
-    true /*PABOOST Enable*/,
-    LoRaBAND /*long BAND*/);
+      false /*DisplayEnable Enable*/,
+      true /*Heltec.LoRa Disable*/,
+      true /*Serial Enable*/,
+      true /*PABOOST Enable*/,
+      LoRaBAND /*long BAND*/);
   LoRa.setTxPower(14, RF_PACONFIG_PASELECT_PABOOST);
 
   // * n e o *
@@ -120,12 +133,13 @@ void setup() {
   Serial.print("hi!\n");
   Serial.printf("BEEP_TONE is %d; LEDC: %sok\n", BEEP_TONE, BEEP_TONE == freq ? "" : "not ");
 
-  //TODO: print configuration
+  // TODO: print configuration
 
   flashPixels(0x00FF00, 3);
 }
 
-void loop() {
+void loop()
+{
   // put your main code here, to run repeatedly:
   int now = millis();
 
@@ -141,7 +155,8 @@ void loop() {
   lasttime = now;
 }
 
-void sendStr(String str) {
+void sendStr(String str)
+{
   Serial.printf("sending '%s' .-^\n", str);
 
   LoRa.beginPacket();
