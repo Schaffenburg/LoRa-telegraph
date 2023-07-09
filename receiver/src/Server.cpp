@@ -54,7 +54,7 @@ void handleUpload() {
   HTTPUpload& upload = server.upload();
   if (upload.status == UPLOAD_FILE_START) {
     Serial.printf("Update: %s\n", upload.filename.c_str());
-    if (!Update.begin(UPDATE_SIZE_UNKNOWN)) { 
+    if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
       Update.printError(Serial);
     }
   } else if (upload.status == UPLOAD_FILE_WRITE) {
@@ -113,15 +113,4 @@ void setupWebServer() {
   webSocket.onEvent(webSocketEvent);
   webSocket.begin();
 
-}
-
-#include "TelegraphTime.h"
-
-void printLocalTime(){
-  struct tm timeinfo;
-  if(!getLocalTime(&timeinfo)){
-    Serial.println("Failed to obtain time");
-    return;
-  }
-  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
 }

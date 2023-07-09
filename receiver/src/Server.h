@@ -1,4 +1,4 @@
-// WebServer.h
+// SERVER.h
 #ifndef SERVER_H
 #define SERVER_H
 
@@ -15,5 +15,8 @@
 
 void setupWebServer();
 void handleWebClient();
+
+extern WebServer server;
+extern WebSocketsServer webSocket;
 
 #endif // SERVER_H
