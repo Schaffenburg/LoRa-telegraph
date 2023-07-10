@@ -3,6 +3,7 @@
 #include "TelegraphTime.h"
 
 std::vector<DataEntry> entries;
+int current_index;
 
 void handleCSVUpload() {
   HTTPUpload& upload = server.upload();
@@ -115,6 +116,14 @@ void readCSVfromFS() {
     Serial.printf("%s (%ld): %s\n", buffer, entry.timestamp, entry.name.c_str());
   }
 
-  // Close the file
   file.close();
+
+  current_index = 0;
+  time_t next_event_ts = 0;
+  time_t now;
+  time(&now);
+  while (entries[current_index].timestamp < now) {
+    current_index++;
+  }
+  Serial.printf("Current TS: %ld, Current index: %i, next event @ %ld: %s\n", now, current_index, entries[current_index].timestamp, entries[current_index].name.c_str());
 }

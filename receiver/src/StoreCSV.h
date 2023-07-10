@@ -15,6 +15,7 @@ struct DataEntry {
 };
 
 extern std::vector<DataEntry> entries;
+extern int current_index;
 
 void handleCSVUpload();
 void readCSVfromFS();

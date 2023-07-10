@@ -13,5 +13,6 @@ extern const int   daylightOffset_sec;
 
 void setupTime();
 void printLocalTime();
+void handleEventsTimer();
 
 #endif
