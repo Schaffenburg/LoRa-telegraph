@@ -85,7 +85,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
   }
 }
 
-void setupWebServer() {
+void setupWifi() {
   // Connect to WiFi network
   WiFi.begin(ssid, password);
 
@@ -106,7 +106,9 @@ void setupWebServer() {
     Serial.println("Error setting up MDNS responder, MDNS will not be used");
   else
     Serial.println("mDNS responder started");
+}
 
+void setupWebServer() {
   server.on("/", handleRoot);
   server.on("/displayString", HTTP_POST, handleDisplayString);
   server.on("/OTA", HTTP_GET, handleOTA);

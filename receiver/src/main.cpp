@@ -18,20 +18,21 @@ void setup() {
   Heltec.display->init();
 
   Serial.begin(9600);
+  Serial.print("Serial ready.");
   SoftSerial.begin(9600);
 
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-
+  setupWifi();
+  setupTime();
   setupWebServer();
 
   readCSVfromFS();
 
   delay(1000);
-  Serial.print("hi!");
-  SoftSerial.print("ready!");
+
+  SoftSerial.print("Setup complete!");
 
   Heltec.display->clear();
-  Heltec.display->drawString(0 , 0 , "LoRaTelegraph receiver ready");
+  Heltec.display->drawString(0 , 0 , "LoRaTelegraphRcv ready");
   Heltec.display->display();
 }
 

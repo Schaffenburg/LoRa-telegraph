@@ -13,6 +13,7 @@
 #include <Update.h>
 #include "heltec.h"
 
+void setupWifi();
 void setupWebServer();
 void handleWebClient();
 
