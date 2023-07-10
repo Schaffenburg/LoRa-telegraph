@@ -40,6 +40,8 @@ void handleCSVUpload() {
 
     // Close the file
     file.close();
+
+    ESP.restart();
   }
 }
 

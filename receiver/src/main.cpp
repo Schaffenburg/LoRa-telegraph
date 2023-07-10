@@ -36,9 +36,7 @@ void setup() {
   Heltec.display->display();
 }
 
-void loop() {
-  handleWebClient();
-
+void handleLoRa() {
   static unsigned long lastPacketTime = 0; // remembers when the last packet was received
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
@@ -69,8 +67,11 @@ void loop() {
     Heltec.display->display();
     SoftSerial.print(buf); // write string
   }
+}
 
-  // printLocalTime();
-  // delay(1000);
+void loop() {
+  handleWebClient();
+  handleLoRa();
+  handleEventsTimer();
 }
 
