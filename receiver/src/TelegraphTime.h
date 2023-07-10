@@ -4,6 +4,8 @@
 
 #include <time.h>
 #include "heltec.h"
+#include "Server.h"
+#include "StoreCSV.h"
 
 extern const char* ntpServer;
 extern const long  gmtOffset_sec;

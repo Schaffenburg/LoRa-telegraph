@@ -1,5 +1,6 @@
 #include "StoreCSV.h"
 #include "Server.h"
+#include "TelegraphTime.h"
 
 std::vector<DataEntry> entries;
 
@@ -68,24 +69,50 @@ void readCSVfromFS() {
   entries.clear();
 
   // Read line by line
+  bool isHeader = true;
   while (file.available()) {
     String line = file.readStringUntil('\n');
     line.trim(); // remove potential CR/LF
 
-    // Parse line
-    int pos = line.indexOf(",");
-    if (pos != -1) {
-      String timestamp = line.substring(0, pos);
-      String name = line.substring(pos + 1);
+    // Ignore the header row
+    if (isHeader) {
+        isHeader = false;
+        continue;
+    }
 
-      // Add to entries
-      entries.push_back(DataEntry(timestamp.c_str(), name.c_str()));
+    // Split line
+    int col1pos = line.indexOf(";");
+    int col2pos = line.indexOf(";", col1pos + 1);
+    int col3pos = line.indexOf(";", col2pos + 1);
+    int col4pos = line.indexOf(";", col3pos + 1);
+
+    if (col3pos != -1) {
+        String dateStr = line.substring(0, col1pos);
+        String timeStr = line.substring(col1pos + 1, col2pos);
+        String name = line.substring(col3pos + 1);
+        if (col4pos > col3pos)
+            name = line.substring(col3pos + 1, col4pos);
+
+        struct tm timeinfo;
+        strptime(dateStr.c_str(), "%Y-%m-%d  ", &timeinfo);
+        int hour = timeStr.substring(0,2).toInt();
+        int min = timeStr.substring(2).toInt();
+
+        timeinfo.tm_hour = hour;
+        timeinfo.tm_min = min;
+        timeinfo.tm_sec = 0;
+        time_t timestamp = mktime(&timeinfo);
+
+        entries.push_back(DataEntry(timestamp, name.c_str()));
     }
   }
 
   // Dump entries to Serial
   for (const auto& entry : entries) {
-    Serial.printf("Timestamp: %s, Name: %s\n", entry.timestamp.c_str(), entry.name.c_str());
+    struct tm *tm_info = localtime(&entry.timestamp);
+    char buffer[13];
+    strftime(buffer, sizeof(buffer), "%d.%m. %H:%M", tm_info);
+    Serial.printf("%s (%ld): %s\n", buffer, entry.timestamp, entry.name.c_str());
   }
 
   // Close the file

@@ -8,10 +8,10 @@
 #include "heltec.h"
 
 struct DataEntry {
-    std::string timestamp;
+    time_t timestamp;
     std::string name;
 
-    DataEntry(std::string t, std::string n): timestamp(t), name(n) {}
+    DataEntry(time_t t, std::string n): timestamp(t), name(n) {}
 };
 
 extern std::vector<DataEntry> entries;
