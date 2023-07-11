@@ -1,8 +1,6 @@
 #include "credentials.h"
-#include "Server.h"
+#include "Receiver.h"
 #include "pages.h"
-#include "StoreCSV.h"
-#include <WebServer.h>
 
 WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);

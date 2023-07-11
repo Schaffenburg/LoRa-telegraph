@@ -5,7 +5,7 @@
 #include <LittleFS.h>
 #include <vector>
 #include <sstream>
-#include "heltec.h"
+#include "Receiver.h"
 
 struct DataEntry {
     time_t timestamp;

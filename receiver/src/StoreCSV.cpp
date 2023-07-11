@@ -1,6 +1,4 @@
 #include "StoreCSV.h"
-#include "Server.h"
-#include "TelegraphTime.h"
 
 std::vector<DataEntry> entries;
 int current_index;

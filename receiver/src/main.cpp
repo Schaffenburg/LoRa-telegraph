@@ -1,13 +1,6 @@
-#include <SoftwareSerial.h>
-#include "Server.h"
-#include "TelegraphTime.h"
-#include "StoreCSV.h"
-#include "heltec.h"
+#include "Receiver.h"
 
-#define BAND    868E6  //you can set band here directly,e.g. 868E6,915E6
-#define SPACE_TIMER_MS 1500
-
-SoftwareSerial SoftSerial(36, 17, false);
+SoftwareSerial SoftSerial(RX_PIN, TX_PIN, false);
 
 void setup() {
   Heltec.begin(true /*DisplayEnable Enable*/,
