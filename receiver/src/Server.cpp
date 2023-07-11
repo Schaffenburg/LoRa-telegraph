@@ -21,6 +21,7 @@ void handleDisplayString() {
     Heltec.display->clear();
     Heltec.display->drawString(0 , 0 , message);
     Heltec.display->display();
+    SoftSerial.print(message);
   }
   server.send(200, "text/html", "Submitted");
 }
@@ -80,10 +81,15 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
     Heltec.display->clear();
     Heltec.display->drawString(0 , 0 , message);
     Heltec.display->display();
+    SoftSerial.print(message);
   }
 }
 
 void setupWifi() {
+  Heltec.display->clear();
+  Heltec.display->drawString(0 , 0 , "Connecting to WiFI");
+  Heltec.display->display();
+
   // Connect to WiFi network
   WiFi.begin(ssid, password);
 
@@ -98,6 +104,14 @@ void setupWifi() {
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+
+  Heltec.display->clear();
+  Heltec.display->drawString(0 , 0 , "Conntected to");
+  Heltec.display->drawString(0 , 12 , ssid);
+  Heltec.display->drawString(0 , 24 , "IP address:");
+  Heltec.display->drawString(0 , 36 , WiFi.localIP().toString().c_str());
+  Heltec.display->display();
+
 
   /*use mdns for host name resolution*/
   if (!MDNS.begin(host))

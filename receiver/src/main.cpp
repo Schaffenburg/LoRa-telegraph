@@ -22,7 +22,7 @@ void setup() {
 
   delay(1000);
 
-  SoftSerial.print("Setup complete!");
+  SoftSerial.print("Fertig");
 
   Heltec.display->clear();
   Heltec.display->drawString(0 , 0 , "LoRaTelegraphRcv ready");
