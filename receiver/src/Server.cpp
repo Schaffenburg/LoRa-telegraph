@@ -1,7 +1,6 @@
 #include "credentials.h"
-#include "Server.h"
+#include "Receiver.h"
 #include "pages.h"
-#include <WebServer.h>
 
 WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
@@ -22,6 +21,7 @@ void handleDisplayString() {
     Heltec.display->clear();
     Heltec.display->drawString(0 , 0 , message);
     Heltec.display->display();
+    SoftSerial.print(message);
   }
   server.send(200, "text/html", "Submitted");
 }
@@ -54,7 +54,7 @@ void handleUpload() {
   HTTPUpload& upload = server.upload();
   if (upload.status == UPLOAD_FILE_START) {
     Serial.printf("Update: %s\n", upload.filename.c_str());
-    if (!Update.begin(UPDATE_SIZE_UNKNOWN)) { 
+    if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
       Update.printError(Serial);
     }
   } else if (upload.status == UPLOAD_FILE_WRITE) {
@@ -70,16 +70,26 @@ void handleUpload() {
   }
 }
 
+void CSVUploadPage() {
+  server.sendHeader("Connection", "close");
+  server.send(200, "text/html", csvUploadPage);
+}
+
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length){
   if(type == WStype_TEXT){
     String message = String((char*) payload);
     Heltec.display->clear();
     Heltec.display->drawString(0 , 0 , message);
     Heltec.display->display();
+    SoftSerial.print(message);
   }
 }
 
-void setupWebServer() {
+void setupWifi() {
+  Heltec.display->clear();
+  Heltec.display->drawString(0 , 0 , "Connecting to WiFI");
+  Heltec.display->display();
+
   // Connect to WiFi network
   WiFi.begin(ssid, password);
 
@@ -95,16 +105,31 @@ void setupWebServer() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
+  Heltec.display->clear();
+  Heltec.display->drawString(0 , 0 , "Conntected to");
+  Heltec.display->drawString(0 , 12 , ssid);
+  Heltec.display->drawString(0 , 24 , "IP address:");
+  Heltec.display->drawString(0 , 36 , WiFi.localIP().toString().c_str());
+  Heltec.display->display();
+
+
   /*use mdns for host name resolution*/
   if (!MDNS.begin(host))
     Serial.println("Error setting up MDNS responder, MDNS will not be used");
   else
     Serial.println("mDNS responder started");
+}
 
+void setupWebServer() {
   server.on("/", handleRoot);
   server.on("/displayString", HTTP_POST, handleDisplayString);
   server.on("/OTA", HTTP_GET, handleOTA);
   server.on("/serverIndex", HTTP_GET, handleServerIndex);
+  server.on("/uploadCSV", HTTP_GET, CSVUploadPage);
+  server.on("/uploadCSV", HTTP_POST, []() {
+    server.send(200, "text/plain", "CSV Uploaded Successfully");
+  }, handleCSVUpload);
+
   server.on("/update", HTTP_POST, []() {
     handleUpdate();
   }, handleUpload);
