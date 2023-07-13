@@ -14,15 +14,18 @@ void setup() {
   Serial.print("Serial ready.");
   SoftSerial.begin(9600);
 
+  setupPixel();
   setupWifi();
   setupTime();
   setupWebServer();
 
   readCSVfromFS();
 
+  fillPixel(0xFF0000);
   delay(1000);
 
   SoftSerial.print("Fertig");
+  fillPixel(0x00FF00);
 
   Heltec.display->clear();
   Heltec.display->drawString(0 , 0 , "LoRaTelegraphRcv ready");

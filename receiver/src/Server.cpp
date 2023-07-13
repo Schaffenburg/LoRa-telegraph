@@ -1,4 +1,5 @@
 #include "credentials.h"
+#include "neopixel.h"
 #include "Receiver.h"
 #include "pages.h"
 
@@ -11,6 +12,12 @@ void handleWebClient() {
 }
 
 void handleRoot() {
+  if(server.arg("led") == "On") {
+    neoPixelOn();
+  } else if(server.arg("led") == "Off") {
+    neoPixelOff();
+  }
+
   server.send(200, "text/html", displayForm);
 }
 
