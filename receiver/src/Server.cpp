@@ -33,6 +33,15 @@ void handleDisplayString() {
   server.send(200, "text/html", "Submitted");
 }
 
+void handleRaw() {
+  String message;
+  if (server.hasArg("byte")) {
+    int rawbyte = server.arg("byte").toInt();
+    SoftSerial.print(message);
+    server.send(200, "text/html", "Sent byte 0x" + String(rawbyte, HEX));
+  }
+}
+
 void handleOTA() {
   server.sendHeader("Connection", "close");
   server.send(200, "text/html", loginIndex);
@@ -130,6 +139,7 @@ void setupWifi() {
 void setupWebServer() {
   server.on("/", handleRoot);
   server.on("/displayString", HTTP_POST, handleDisplayString);
+  server.on("/displayRaw", HTTP_POST, handleRaw);
   server.on("/OTA", HTTP_GET, handleOTA);
   server.on("/serverIndex", HTTP_GET, handleServerIndex);
   server.on("/uploadCSV", HTTP_GET, CSVUploadPage);
