@@ -12,33 +12,47 @@ void handleWebClient() {
 }
 
 void handleRoot() {
-  if(server.arg("led") == "On") {
-    neoPixelOn();
-  } else if(server.arg("led") == "Off") {
-    neoPixelOff();
-  }
-
   server.send(200, "text/html", displayForm);
+}
+
+void handleLED() {
+  Serial.print("handleLED:");
+  if (server.arg("led") == "On") {
+    Serial.println("On");
+    server.send(200, "text/html", "Turn ON LED");
+  } else if (server.arg("led") == "Off") {
+    Serial.println("Off");
+    server.send(200, "text/html", "Turn OFF LED");
+  }
+  server.send(500, "text/html", "Error in handleLED, no value found " + server.arg("led"));
 }
 
 void handleDisplayString() {
   String message;
+  Serial.print("handleDisplayString:");
   if (server.hasArg("text")) {
     message = server.arg("text");
     Heltec.display->clear();
     Heltec.display->drawString(0 , 0 , message);
     Heltec.display->display();
     SoftSerial.print(message);
+    Serial.println(message);
+    server.send(200, "text/html", "Display: '" + message +"'");
+  } else {
+    server.send(500, "text/html", "Error in handleDisplayString, no text found");
   }
-  server.send(200, "text/html", "Submitted");
 }
 
 void handleRaw() {
   String message;
+  Serial.print("handleRaw:");
   if (server.hasArg("byte")) {
     int rawbyte = server.arg("byte").toInt();
     SoftSerial.print(message);
-    server.send(200, "text/html", "Sent byte 0x" + String(rawbyte, HEX));
+    Serial.println(String(rawbyte));
+    server.send(200, "text/html", "Display byte: 0x" + String(rawbyte, HEX));
+  } else {
+    server.send(500, "text/html", "Error in handleRaw, no byte found");
   }
 }
 
@@ -98,6 +112,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
     Heltec.display->drawString(0 , 0 , message);
     Heltec.display->display();
     SoftSerial.print(message);
+    Serial.print("WS:");
+    Serial.println(message);
   }
 }
 
@@ -138,8 +154,9 @@ void setupWifi() {
 
 void setupWebServer() {
   server.on("/", handleRoot);
-  server.on("/displayString", HTTP_POST, handleDisplayString);
-  server.on("/displayRaw", HTTP_POST, handleRaw);
+  server.on("/StringForm", HTTP_POST, handleDisplayString);
+  server.on("/RawForm", HTTP_POST, handleRaw);
+  server.on("/LedForm", HTTP_POST, handleLED);
   server.on("/OTA", HTTP_GET, handleOTA);
   server.on("/serverIndex", HTTP_GET, handleServerIndex);
   server.on("/uploadCSV", HTTP_GET, CSVUploadPage);
