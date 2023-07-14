@@ -43,9 +43,11 @@ void handleRoot() {
 void handleLED() {
   Serial.print("handleLED:");
   if (server.arg("led") == "On") {
+    neoPixelOn();
     Serial.println("On");
     server.send(200, "text/html", "Turn ON LED");
   } else if (server.arg("led") == "Off") {
+    neoPixelOff();
     Serial.println("Off");
     server.send(200, "text/html", "Turn OFF LED");
   }
