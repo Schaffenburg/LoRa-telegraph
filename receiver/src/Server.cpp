@@ -3,6 +3,31 @@
 #include "Receiver.h"
 #include "pages.h"
 
+String convert_utf8_to_iso8859_1(String utf8) {
+  String iso8859_1 = "";
+  for (int i = 0; i < utf8.length(); i++){
+    char c = utf8[i]; // get the character
+    if ((c & 0x80) == 0) { // is it a single-byte character?
+      iso8859_1 += c; // if so, just append it
+    } else if ((c & 0xE0) == 0xC0) { // is it a two-byte sequence?
+      // extract the Unicode codepoint represented by the sequence
+      int codepoint = ((c & 0x1F) << 6) | (utf8[++i] & 0x3F);
+      if (codepoint <= 0xFF) { // is it within the ISO-8859-1 range?
+        iso8859_1 += (char) codepoint; // if so, append the equivalent ISO-8859-1 character
+      }
+      // if not, we simply omit it
+    } else {
+      // it's a more-than-two-byte sequence, which is definitely outside the ISO-8859-1 range,
+      // so we just skip the rest of the sequence
+      if ((c & 0xF0) == 0xE0) i++;
+      else if ((c & 0xF8) == 0xF0) i += 2;
+      // if it's neither, it's a malformed sequence, so we skip it altogether
+    }
+  }
+  return iso8859_1;
+}
+
+
 WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
 
@@ -36,7 +61,7 @@ void handleDisplayString() {
     Heltec.display->drawString(0 , 0 , message);
     Heltec.display->display();
     SoftSerial.write(CLEAR_DISPLAY);
-    SoftSerial.print(message);
+    SoftSerial.print(convert_utf8_to_iso8859_1(message));
     Serial.println(message);
     server.send(200, "text/html", "Display: '" + message +"'");
   } else {
