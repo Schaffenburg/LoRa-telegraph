@@ -35,6 +35,7 @@ void handleDisplayString() {
     Heltec.display->clear();
     Heltec.display->drawString(0 , 0 , message);
     Heltec.display->display();
+    SoftSerial.write(CLEAR_DISPLAY);
     SoftSerial.print(message);
     Serial.println(message);
     server.send(200, "text/html", "Display: '" + message +"'");
@@ -44,11 +45,10 @@ void handleDisplayString() {
 }
 
 void handleRaw() {
-  String message;
   Serial.print("handleRaw:");
   if (server.hasArg("byte")) {
     int rawbyte = server.arg("byte").toInt();
-    SoftSerial.print(message);
+    SoftSerial.write(rawbyte);
     Serial.println(String(rawbyte));
     server.send(200, "text/html", "Display byte: 0x" + String(rawbyte, HEX));
   } else {
@@ -144,6 +144,7 @@ void setupWifi() {
   Heltec.display->drawString(0 , 36 , WiFi.localIP().toString().c_str());
   Heltec.display->display();
 
+  SoftSerial.print(WiFi.localIP().toString());
 
   /*use mdns for host name resolution*/
   if (!MDNS.begin(host))

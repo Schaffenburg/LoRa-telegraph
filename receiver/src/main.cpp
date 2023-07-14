@@ -22,7 +22,7 @@ void setup() {
   readCSVfromFS();
 
   fillPixel(0xFF0000);
-  delay(1000);
+  delay(5000);
 
   SoftSerial.print("Fertig");
   fillPixel(0x00FF00);
