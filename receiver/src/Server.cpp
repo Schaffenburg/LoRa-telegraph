@@ -27,7 +27,6 @@ String convert_utf8_to_iso8859_1(String utf8) {
   return iso8859_1;
 }
 
-
 WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
 
@@ -38,6 +37,14 @@ void handleWebClient() {
 
 void handleRoot() {
   server.send(200, "text/html", displayForm);
+}
+
+void tickerPage() {
+  server.send(200, "text/html", tickerForm);
+}
+
+void pickerPage() {
+  server.send(200, "text/html", colorPickerIndex);
 }
 
 void handleLED() {
@@ -71,6 +78,59 @@ void handleDisplayString() {
   }
 }
 
+std::vector<String> ticker_lines;
+uint32_t ticker_timeout;
+
+void handleTicker() {
+  Serial.print("handleTicker:");
+  if (server.hasArg("toggle") && server.arg("toggle") == "on") {
+    ticker_lines.clear();
+    if (server.hasArg("Line1")) {
+      ticker_lines.push_back(server.arg("Line1"));
+    }
+    if (server.hasArg("Line2")) {
+      ticker_lines.push_back(server.arg("Line2"));
+    }
+    if (server.hasArg("Line3")) {
+      ticker_lines.push_back(server.arg("Line3"));
+    }
+    if (server.hasArg("timeout_ms")) {
+      ticker_timeout = server.arg("timeout_ms").toInt();
+    }
+  } else {
+    ticker_lines.clear();
+  }
+  server.send(200, "text/html", "Submitted tickerstrings");
+}
+
+
+void handleTickerEvent() {
+    time_t now;
+
+    if (ticker_lines.empty()) {
+      return;
+    }
+
+    static unsigned long lastLoopTime = millis();
+    static int idx = 0;
+    if(millis() - lastLoopTime < ticker_timeout) {
+        return;
+    }
+    lastLoopTime = millis();
+
+    if (idx < ticker_lines.size())
+    {
+      SoftSerial.write(0x0A);
+      SoftSerial.write(0x09);
+      SoftSerial.write(0x0D);
+      SoftSerial.print(ticker_lines[idx]);
+      idx++;
+
+    } else {
+      idx = 0;
+    }
+}
+
 void handleRaw() {
   Serial.print("handleRaw:");
   if (server.hasArg("byte")) {
@@ -78,6 +138,7 @@ void handleRaw() {
     SoftSerial.write(rawbyte);
     Serial.println(String(rawbyte));
     server.send(200, "text/html", "Display byte: 0x" + String(rawbyte, HEX));
+    currentCharPos = 0;
   } else {
     server.send(500, "text/html", "Error in handleRaw, no byte found");
   }
@@ -135,12 +196,18 @@ void CSVUploadPage() {
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length){
   if(type == WStype_TEXT){
     String message = String((char*) payload);
+    Serial.print("WS:");
+    Serial.println(message);
+    if (message.startsWith("{RGB}=")) {
+      uint32_t rgb;
+       rgb = strtol(message.substring(7,13).c_str(), 0, 16);
+       fillPixel(rgb);
+       return;
+    }
     Heltec.display->clear();
     Heltec.display->drawString(0 , 0 , message);
     Heltec.display->display();
     SoftSerial.print(message);
-    Serial.print("WS:");
-    Serial.println(message);
   }
 }
 
@@ -182,6 +249,9 @@ void setupWifi() {
 
 void setupWebServer() {
   server.on("/", handleRoot);
+  server.on("/ticker", HTTP_GET, tickerPage);
+  server.on("/pickerForm", HTTP_GET, pickerPage);
+  server.on("/tickerForm", HTTP_POST, handleTicker);
   server.on("/StringForm", HTTP_POST, handleDisplayString);
   server.on("/RawForm", HTTP_POST, handleRaw);
   server.on("/LedForm", HTTP_POST, handleLED);

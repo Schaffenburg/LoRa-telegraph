@@ -1,0 +1,20 @@
+#include <BleKeyboard.h>
+// get from https://github.com/T-vK/ESP32-BLE-Keyboard
+
+// name, manufacturer, init. batter level
+BleKeyboard bleKeyboard("LoRa-Telegraph", "schaffenburg", 69);
+
+void setupBLE() {
+<<<<<<< HEAD
+  Serial.begin(9600);
+=======
+  bleKeyboard.end();
+>>>>>>> 485fa58 (some more BLE & status LEDs)
+  bleKeyboard.begin();
+}
+
+void blePress(char key) {
+  bleKeyboard.press(key);
+
+  bleKeyboard.releaseAll();
+}

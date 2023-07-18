@@ -1,6 +1,6 @@
 #include "neopixel.h"
 
-Adafruit_NeoPixel pixels(NUM_PIX, NEO_PIN, NEO_GRB | NEO_KHZ800);
+Adafruit_NeoPixel pixels(NUM_PIX, NEO_PIN, NEO_BRG | NEO_KHZ800);
 
 void setupPixel() {
     pixels.begin();

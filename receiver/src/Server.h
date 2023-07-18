@@ -14,6 +14,7 @@
 void setupWifi();
 void setupWebServer();
 void handleWebClient();
+void handleTickerEvent();
 
 extern WebServer server;
 extern WebSocketsServer webSocket;

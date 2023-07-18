@@ -19,10 +19,11 @@ const char* displayForm =
 "<form id='LedForm' method='post'>"
   "<input type='hidden' id='LedValue' name='led'>"
   "<label for='LedValue'>Enable LEDs:</label>"
-  "<input type='submit' value='Off' onclick='document.getElementById(\"LedValue\").value=\"Off\"'>"
-  "<input type='submit' value='On' onclick='document.getElementById(\"LedValue\").value=\"On\"'>"
+  "<input type='submit' value='Off' onclick='document.getElementById('LedValue').value='Off''>"
+  "<input type='submit' value='On' onclick='document.getElementById('LedValue').value='On''>"
 "</form>"
 "<div id='message'>Status</div>"
+"<br><a href='/ticker'>Ticker</a>"
 "<script>"
 "function handleSubmit(formId) {"
   "document.getElementById(formId).addEventListener('submit', function(event) {"
@@ -48,6 +49,45 @@ const char* displayForm =
   "if (liveModeCheckbox.checked) ws.send(e.target.value);"
 "});"
 "</script>";
+
+const char* tickerForm =
+"<form id='tickerForm' action='/tickerForm' method='post'>"
+  "<label for='Line1'>Line 1:</label>"
+  "<input type='text' id='Line1' name='Line1'><br>"
+  "<label for='Line2'>Line 2:</label>"
+  "<input type='text' id='Line2' name='Line2'><br>"
+  "<label for='Line3'>Line 3:</label>"
+  "<input type='text' id='Line3' name='Line3'><br>"
+  "<label for='timeout_ms'>Timeout (ms):</label>"
+  "<input type='number' name='timeout_ms' step='250' default='2000'></input><br>"
+  "<label for='toggle'>Enable:</label>"
+  "<input type='checkbox' id='toggle' name='toggle'><br>"
+  "<input type='submit' value='Senden'>"
+"</form>"
+"<script>"
+"handleSubmit('tickerForm');"
+"</script>";
+
+/*
+ * Login page
+ */
+const char* colorPickerIndex =
+"<head>"
+"<script src='https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.5.1/jscolor.min.js' integrity='sha512-/e+XGe8oSD9M1t0NKNCrUlRsiyeFTiZw4+pmf0g8wTbc8IfiLwJsjTODc/pq3hKhKAdsehJs7STPvX7SkFSpOQ==' crossorigin='anonymous' referrerpolicy='no-referrer'></script>"
+"</head><body><p>Color: <input data-jscolor=\"{onInput:\'update(this)\'}\"></p>"
+"<script>"
+  "var ws = new WebSocket('ws://' + location.hostname + ':81/');"
+  "ws.onopen = function () {"
+    "console.log('Connected via WebSocket');"
+  "};"
+  "ws.onerror = function (error) {"
+    "console.log('WebSocket Error: ', error);"
+  "};"
+  "function update(picker) {"
+    "console.log('{RGB}='+picker.toHEXString());"
+    "ws.send('{RGB}='+picker.toHEXString());"
+  "}"
+"</script></body></html>";
 
 /*
  * Login page
@@ -97,7 +137,7 @@ const char* serverIndex =
   "var form = $('#upload_form')[0];"
   "var data = new FormData(form);"
   " $.ajax({"
-  "url: `/update?k=${(new URLSearchParams(window.location.search)).get(\"k\")}`,"
+  "url: `/update?k=${(new URLSearchParams(window.location.search)).get('k')}`,"
   "type: 'POST',"
   "data: data,"
   "contentType: false,"
