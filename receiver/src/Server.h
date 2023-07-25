@@ -11,7 +11,7 @@
 #include <ESPmDNS.h>
 #include <Update.h>
 
-void setupWifi();
+void connectToWiFi();
 void setupWebServer();
 void handleWebClient();
 void handleTickerEvent();

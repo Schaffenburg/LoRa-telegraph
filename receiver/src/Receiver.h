@@ -3,6 +3,7 @@
 #define RECEIVER_H
 
 #include <SoftwareSerial.h>
+#include <Preferences.h>
 #include "TelegraphTime.h"
 #include "StoreCSV.h"
 #include "Server.h"
@@ -23,6 +24,7 @@
 extern bool enableTicker;
 extern int currentCharPos;
 
+extern Preferences preferences;
 extern SoftwareSerial SoftSerial;
 
 #endif

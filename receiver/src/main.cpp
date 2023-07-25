@@ -1,6 +1,8 @@
 #include "Receiver.h"
 
 SoftwareSerial SoftSerial(RX_PIN, TX_PIN, false);
+Preferences preferences;
+
 bool enableTicker;
 int currentCharPos;
 
@@ -17,7 +19,7 @@ void setup() {
   SoftSerial.begin(9600);
 
   setupPixel();
-  setupWifi();
+  connectToWiFi();
   setupTime();
   setupWebServer();
 
@@ -29,7 +31,6 @@ void setup() {
   enableTicker = false;
   currentCharPos = 0;
 
-  SoftSerial.print("Fertig");
   fillPixel(0x00FF00);
 
   Heltec.display->clear();

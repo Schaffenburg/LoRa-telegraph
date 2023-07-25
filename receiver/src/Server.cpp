@@ -29,6 +29,7 @@ String convert_utf8_to_iso8859_1(String utf8) {
 
 WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
+String ota_pw;
 
 void handleWebClient() {
   server.handleClient();
@@ -151,7 +152,7 @@ void handleOTA() {
 
 void handleServerIndex() {
   server.sendHeader("Connection", "close");
-  if(server.arg("k") != OTA_PWD)
+  if(server.arg("k") != ota_pw)
     server.send(400, "text/html", "invalid credentials.");
   else
     server.send(200, "text/html", serverIndex);
@@ -159,7 +160,7 @@ void handleServerIndex() {
 
 void handleUpdate() {
   server.sendHeader("Connection", "close");
-  if(server.arg("k") != OTA_PWD) {
+  if(server.arg("k") != ota_pw) {
     server.send(400, "text/html", "invalid credentials.");
   } else {
     server.send(200, "text/html", serverIndex);
@@ -188,6 +189,26 @@ void handleUpload() {
   }
 }
 
+void handleCredentials() {
+    String ssid;
+    String wifi_pw;
+    if (server.hasArg("ssid") && server.hasArg("wifi_pw")) {
+      ssid = server.arg("ssid");
+      wifi_pw = server.arg("wifi_pw");
+      ota_pw = server.arg("ota_pw");
+
+      preferences.begin("wifi", false);
+      preferences.putString("ssid", ssid);
+      preferences.putString("wifi_pw", wifi_pw);
+      preferences.putString("ota_pw", ota_pw);
+      preferences.end();
+
+      server.send(200, "text/html", "Submitted tickerstrings");
+    } else {
+      server.send(400, "text/plain", "Bad Request");
+    }
+}
+
 void CSVUploadPage() {
   server.sendHeader("Connection", "close");
   server.send(200, "text/html", csvUploadPage);
@@ -211,25 +232,63 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
   }
 }
 
-void setupWifi() {
+void startAPMode() {
+  WiFi.disconnect();
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(fallback_ssid, fallback_password); // Using default credentials
+
+  preferences.begin("wifi", true);
+  String ssid = preferences.getString("ssid", "");
+  String wifi_pw = preferences.getString("wifi_pw", "");
+  String ota_pw = preferences.getString("ota_pw", "");
+  preferences.end();
+
+  char wifiCredentialsPage[512];
+  sprintf(wifiCredentialsPage, wifiCredentialsTemplate, ssid.c_str(), wifi_pw.c_str(), ota_pw.c_str());
+
+  server.send(200, "text/html", wifiCredentialsPage);
+
+  server.on("/saveCredentials", HTTP_POST, []() {handleCredentials();});
+
+  server.begin();
+}
+
+void connectToWiFi() {
   Heltec.display->clear();
-  Heltec.display->drawString(0 , 0 , "Connecting to WiFI");
+  Heltec.display->drawString(0 , 0 , "Try connecting to WiFi");
   Heltec.display->display();
 
-  // Connect to WiFi network
-  WiFi.begin(ssid, password);
+  Serial.print("Try Connecting to WiFi");
 
-  Serial.print("Connecting to WiFi");
+  // Attempt to connect to Wi-Fi with saved credentials
+  preferences.begin("wifi", true);  // Begin preferences in read-only mode
+  String ssid = preferences.getString("ssid", "");
+  String wifi_pw = preferences.getString("wifi_pw", "");
+  ota_pw = preferences.getString("ota_pw", "");
+  preferences.end();
 
-  // Wait for connection
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  if (ssid != "" && wifi_pw != "") {
+    WiFi.begin(ssid.c_str(), wifi_pw.c_str());
+
+    if (WiFi.waitForConnectResult() != WL_CONNECTED) {
+      Serial.println("Failed to connect to Wi-Fi with saved credentials. Starting AP mode.");
+      startAPMode();
+    }
+  } else {
+    Serial.println("No saved credentials found. Starting AP mode.");
+    startAPMode();
   }
+
   Serial.print("\nConnected to ");
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+
+  /*use mdns for host name resolution*/
+  if (!MDNS.begin(host))
+    Serial.println("Error setting up MDNS responder, MDNS will not be used");
+  else
+    Serial.println("mDNS responder started");
 
   Heltec.display->clear();
   Heltec.display->drawString(0 , 0 , "Conntected to");
@@ -238,13 +297,8 @@ void setupWifi() {
   Heltec.display->drawString(0 , 36 , WiFi.localIP().toString().c_str());
   Heltec.display->display();
 
+  SoftSerial.write(CLEAR_DISPLAY);
   SoftSerial.print(WiFi.localIP().toString());
-
-  /*use mdns for host name resolution*/
-  if (!MDNS.begin(host))
-    Serial.println("Error setting up MDNS responder, MDNS will not be used");
-  else
-    Serial.println("mDNS responder started");
 }
 
 void setupWebServer() {
