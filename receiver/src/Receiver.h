@@ -22,6 +22,7 @@
 #define LINE_LENGTH 18
 
 extern bool enableTicker;
+extern bool enableFallbackAP;
 extern int currentCharPos;
 
 extern Preferences preferences;

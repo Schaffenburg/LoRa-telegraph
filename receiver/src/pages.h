@@ -198,7 +198,7 @@ const char* wifiCredentialsTemplate =
 "<html><body>"
 "<form method='post' action='/saveCredentials'>"
 "SSID:<br><input type='text' name='ssid' text='%s'><br>"
-"WiFi Password:<br><input type='text' name='password' text='%s'><br><br>"
+"WiFi Password:<br><input type='text' name='wifi_pw' text='%s'><br><br>"
 "OTA Password:<br><input type='text' name='ota_pw' text='%s'><br><br>"
 "<input type='submit' value='Save'></form></body></html>";
 

@@ -20,6 +20,11 @@ void setup() {
 
   setupPixel();
   connectToWiFi();
+  if (enableFallbackAP) {
+    fillPixel(0xFFFF00);
+    return;
+  }
+
   setupTime();
   setupWebServer();
 
@@ -79,6 +84,11 @@ void handleLoRa() {
 
 void loop() {
   handleWebClient();
+  if (enableFallbackAP) {
+    delay(1000);
+    return;
+  }
+  webSocket.loop();
   handleLoRa();
   // handleEventsTimer();
   handleTickerEvent();

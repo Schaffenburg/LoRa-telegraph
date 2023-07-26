@@ -30,10 +30,10 @@ String convert_utf8_to_iso8859_1(String utf8) {
 WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
 String ota_pw;
+bool enableFallbackAP;
 
 void handleWebClient() {
   server.handleClient();
-  webSocket.loop();
 }
 
 void handleRoot() {
@@ -203,7 +203,7 @@ void handleCredentials() {
       preferences.putString("ota_pw", ota_pw);
       preferences.end();
 
-      server.send(200, "text/html", "Submitted tickerstrings");
+      server.send(200, "text/html", "Saved credentials!");
     } else {
       server.send(400, "text/plain", "Bad Request");
     }
@@ -232,23 +232,35 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
   }
 }
 
-void startAPMode() {
-  WiFi.disconnect();
-  WiFi.mode(WIFI_AP);
-  WiFi.softAP(fallback_ssid, fallback_password); // Using default credentials
-
+void handleFallbackRoot() {
+  Serial.print("handleFallbackRoot");
   preferences.begin("wifi", true);
   String ssid = preferences.getString("ssid", "");
   String wifi_pw = preferences.getString("wifi_pw", "");
   String ota_pw = preferences.getString("ota_pw", "");
   preferences.end();
 
-  char wifiCredentialsPage[512];
+  char wifiCredentialsPage[1024];
   sprintf(wifiCredentialsPage, wifiCredentialsTemplate, ssid.c_str(), wifi_pw.c_str(), ota_pw.c_str());
 
   server.send(200, "text/html", wifiCredentialsPage);
+}
 
-  server.on("/saveCredentials", HTTP_POST, []() {handleCredentials();});
+void startAPMode() {
+  WiFi.disconnect();
+  WiFi.softAPConfig(fallback_ip, gateway, subnet);
+
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(fallback_ssid, fallback_password); // Using default credentials
+
+  IPAddress myIP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(myIP);
+
+  server.on("/", handleFallbackRoot);
+  server.on("/saveCredentials", HTTP_POST, handleCredentials);
+
+  enableFallbackAP = true;
 
   server.begin();
 }
@@ -257,6 +269,7 @@ void connectToWiFi() {
   Heltec.display->clear();
   Heltec.display->drawString(0 , 0 , "Try connecting to WiFi");
   Heltec.display->display();
+  enableFallbackAP = false;
 
   Serial.print("Try Connecting to WiFi");
 
@@ -279,10 +292,13 @@ void connectToWiFi() {
     startAPMode();
   }
 
+  IPAddress myIP = enableFallbackAP ? fallback_ip : WiFi.localIP();
+  String ip_adress_s = myIP.toString();
+
   Serial.print("\nConnected to ");
   Serial.println(ssid);
   Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  Serial.println(ip_adress_s.c_str());
 
   /*use mdns for host name resolution*/
   if (!MDNS.begin(host))
@@ -291,10 +307,10 @@ void connectToWiFi() {
     Serial.println("mDNS responder started");
 
   Heltec.display->clear();
-  Heltec.display->drawString(0 , 0 , "Conntected to");
+  Heltec.display->drawString(0 , 0 , enableFallbackAP ? "Fallback AP Mode" : "Conntected to");
   Heltec.display->drawString(0 , 12 , ssid);
   Heltec.display->drawString(0 , 24 , "IP address:");
-  Heltec.display->drawString(0 , 36 , WiFi.localIP().toString().c_str());
+  Heltec.display->drawString(0 , 36 , ip_adress_s.c_str());
   Heltec.display->display();
 
   SoftSerial.write(CLEAR_DISPLAY);
